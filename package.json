@@ -1,0 +1,26 @@
+{
+  "name": "doit",
+  "version": "0.0.2",
+  "description": "A scaffold helping tool for daily needs",
+  "author": "Nikolaos Margaris <reverence23@gmail.com>",
+  "contributors": [{
+	  "name": "Nikolaos Margaris",
+	  "email": "reverence23@gmail.com"
+	}],
+  "bin": {
+	  "module-name": "./bin/doit"
+	},
+	"scripts": {},
+	"main": "./bin/doit",
+	"repository": {
+		"type": "git",
+	  "url": "https://github.com/margaris23/doit.git"
+	},
+	"bugs": {},
+	"keywords": ["doit","scaffold"],
+	"dependencies": {},
+	"devDependencies": {},
+	"preferGlobal": true,
+	"private": false,
+	"license": "Free"
+}
