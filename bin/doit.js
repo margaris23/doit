@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 var fs = require('fs');
+var Utils = require('../src/utils.js');
 
 // make sure current working directory is used
 var cwd = process.cwd();
@@ -8,13 +9,9 @@ var cwd = process.cwd();
 // use rest of arguments provided as input
 var args = process.argv.slice(2);
 
-function error(msg) {
-  console.error('Error: ' + msg);
-}
-
 // validate # args
 if (args.length < 3) {
-  error('wrong number of arguments!');
+  Utils.error('wrong number of arguments!');
   return -1;
 }
 
@@ -22,21 +19,21 @@ if (args.length < 3) {
 var product = args[0];
 
 if (product !== 'angular') {
-  error('only "angular" is currently supported!');
+  Utils.error('only "angular" is currently supported!');
   return;
 }
 
 // create src files in folder with provided content
-function handleSrc(folder, file, content) {
+function addSrc(folder, file, content, cb) {
 	// always use relative paths
 	var innerPath = cwd + '/src/' + folder;
 
 	// makesure configuration file exists
   fs.readFile(cwd + '/project.conf', function(err) {
 		if (err) {
-      error(err);
+      Utils.error(err);
       console.log('Suggestion: Please run this inside a project folder!');
-      return;
+      cb && cb(err);;
     }
 
 		// check if folder exists first
@@ -47,9 +44,9 @@ function handleSrc(folder, file, content) {
 		// create file with provided content
 		fs.writeFile(innerPath + '/' + file, content, function (err) {
 			if (err) {
-				error(err);
-				return;
+				Utils.error(err);
 			}
+			cb && cb(err);
 		});
 
 	});
@@ -62,7 +59,7 @@ switch(action) {
 		// create top folder
     fs.mkdir(args[2], function (err) {
       if (err) {
-        error(err);
+        Utils.error(err);
         return;
       }
 
@@ -73,17 +70,13 @@ switch(action) {
 			var srcFolder = args[2] + '/src/';
       fs.mkdirSync(srcFolder);
       fs.mkdirSync(srcFolder + 'services');
-			fs.writeFileSync(srcFolder + 'services/' + args[2] + 'Services.js',
-											 'var services = angular.module("' + args[2] + '.services", []);\n');
+			fs.writeFileSync(srcFolder + 'services/' + args[2] + 'Services.js', Utils.moduleInitContent('services', args[2]));
       fs.mkdirSync(srcFolder + 'controllers');
-			fs.writeFileSync(srcFolder + 'controllers/' + args[2] + 'Controllers.js',
-											 'var controllers = angular.module("' + args[2] + '.controllers", []);\n');
+			fs.writeFileSync(srcFolder + 'controllers/' + args[2] + 'Controllers.js', Utils.moduleInitContent('controllers', args[2]));
       fs.mkdirSync(srcFolder + 'directives');
-			fs.writeFileSync(srcFolder + 'directives/' + args[2] + 'Directives.js',
-											 'var directives = angular.module("' + args[2] + '.directives", []);\n');
+			fs.writeFileSync(srcFolder + 'directives/' + args[2] + 'Directives.js', Utils.moduleInitContent('directives', args[2]));
       fs.mkdirSync(srcFolder + 'filters');
-			fs.writeFileSync(srcFolder + 'filters/' + args[2] + 'Filters.js',
-											 'var filters= angular.module("' + args[2] + '.filters", []);\n');
+			fs.writeFileSync(srcFolder + 'filters/' + args[2] + 'Filters.js', Utils.moduleInitContent('filters', args[2]));
       fs.mkdirSync(srcFolder + 'common');
 
 			// create other folders
@@ -92,24 +85,26 @@ switch(action) {
     });
     break;
   case 'create-service':
-    handleSrc('services', args[2], '//angular service');
+    addSrc('services', args[2], '//angular service', function (error) {
+			// TODO
+		});
     break;
   case 'create-controller':
-		handleSrc('controllers', args[2], '//angular controller');
+		addSrc('controllers', args[2], '//angular controller');
     break;
   case 'create-view':
-		// TBD
+		// TODO
     break;
   case 'create-common':
-		handleSrc('common', args[2], '//common object');
+		addSrc('common', args[2], '//common object');
     break;
   case 'create-directive':
-		handleSrc('directives', args[2], '//angular directive');
+		addSrc('directives', args[2], '//angular directive');
     break;
   case 'create-filter':
-		handleSrc('filters', args[2], '//angular filter');
+		addSrc('filters', args[2], '//angular filter');
     break;
 	default:
-    error('uknown action');
+    Utils.error('uknown action');
     return;
 }
